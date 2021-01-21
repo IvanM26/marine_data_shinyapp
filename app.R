@@ -1,28 +1,13 @@
-library(shiny.semantic)
-library(data.table)
+library(shiny)
+# library(shiny.semantic)
 library(tidyverse)
 library(geosphere)
 library(leaflet)
 
 # Read data
-# Used data.table::fread instead of readr::read_csv because it's faster
-data <- fread("unzip -p data/ships_04112020.zip")
-
-# I decided to modify SHIP_ID column because it was not unique for each SHIPNAME
-ship_data <- data %>% 
-  group_by(SHIPTYPE, ship_type, SHIP_ID, SHIPNAME) %>% 
-  summarise() %>% 
-  # Arrange by SHIPNAME before assigning ID
-  arrange(SHIPNAME) %>% 
-  # Create SHIP_ID_MOD (Modified SHIP_ID)
-  rownames_to_column("SHIP_ID_MOD")
-
-data <- data %>% 
-  left_join(ship_data)
-
-# Useful tables to speed up code execution
-dict_shiptype <- ship_data %>% 
-  make_dict(SHIPTYPE, ship_type)
+data <- readRDS("data/ships.RDS")
+ship_data <- readRDS("data/ship_data.RDS")
+dict_shiptype <- readRDS("data/dict_shiptype.RDS")
 
 ui <- fluidPage(
   selectInput(
@@ -40,23 +25,23 @@ ui <- fluidPage(
   
   dataTableOutput("data_filtered"),
   
-  leafletOutput("map"),
+  leafletOutput("map")
 )
 
 server <- function(input, output, session) {
   
   # Update available ship names based on selected type
   ship_data_filt <- reactive({
-    ship_data %>% 
+    req(input$ship_type)
+    ship_data %>%
       filter(SHIPTYPE == input$ship_type)
   })
-  
+
   observeEvent(ship_data_filt(), {
-    choices <- setNames(ship_data_filt()$SHIP_ID_MOD, 
+    choices <- setNames(ship_data_filt()$SHIP_ID_MOD,
                         ship_data_filt()$SHIPNAME)
-    updateSelectInput(session, "ship_name", choices = choices) 
+    updateSelectInput(session, "ship_name", choices = choices)
   })
-  
   
   data_filt <- reactive({
     req(input$ship_name)
@@ -68,7 +53,7 @@ server <- function(input, output, session) {
   
   long_dist_row <- reactiveVal(0)
   
-  observe(message(paste("a", nrow(data_filt()))))
+  # observe(message(paste0("nrow(data_filt()) = ", nrow(data_filt()))))
   
   long_dist <- eventReactive(data_filt(), {
     distances <- compute_distances(data_filt())
@@ -95,8 +80,9 @@ server <- function(input, output, session) {
   
   
   output$data_filtered <- renderDataTable(data_map())
-  observe(message(long_dist()))
-  observe(message(long_dist_row()))
+  
+  # observe(message(paste0("long_dist() = ", long_dist())))
+  # observe(message(paste0("long_dist_row() = ", long_dist_row())))
   
 }
 

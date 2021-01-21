@@ -105,14 +105,6 @@ server <- function(input, output, session) {
                  popup = c("Beggining", paste0("End: ", round(long_dist(), 2), " mts sailed")))
   })
   
-  # makeAwesomeIcon(icon = "ship", library = "fa",
-  #                 markerColor = "blue", 
-  #                 iconColor = "white")
-  # 
-  # makeAwesomeIcon(icon = "times", library = "fa",
-  #                 markerColor = "blue", 
-  #                 iconColor = "white")
-  
   output$data_filtered <- renderDataTable(data_map())
   
   # observe(message(paste0("long_dist() = ", long_dist())))

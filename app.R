@@ -1,31 +1,53 @@
 library(shiny)
+library(shinydashboard)
 # library(shiny.semantic)
 library(tidyverse)
 library(geosphere)
 library(leaflet)
+
 
 # Read data
 data <- readRDS("data/ships.RDS")
 ship_data <- readRDS("data/ship_data.RDS")
 dict_shiptype <- readRDS("data/dict_shiptype.RDS")
 
-ui <- fluidPage(
-  selectInput(
-    inputId = "ship_type",
-    label = "Select Ship Type",
-    choices = setNames(dict_shiptype$SHIPTYPE, 
-                       dict_shiptype$ship_type),
+ui <- dashboardPage(
+  dashboardHeader(title = "Marine Data App"),
+  dashboardSidebar(
+    selectInput(
+      inputId = "ship_type",
+      label = "Select Vessel Type",
+      choices = setNames(dict_shiptype$SHIPTYPE, 
+                         dict_shiptype$ship_type),
+    ),
+    
+    selectInput(
+      inputId = "ship_name",
+      label = "Select Vessel",
+      choices = NULL
+    )
   ),
-  
-  selectInput(
-    inputId = "ship_name",
-    label = "Select Ship Name",
-    choices = NULL
-  ),
-  
-  dataTableOutput("data_filtered"),
-  
-  leafletOutput("map")
+  dashboardBody(
+
+        leafletOutput("map"),
+        
+        h2("Vessel Details"),
+        
+        infoBox(
+          "Length", uiOutput("ship_length"), 
+          "meters", icon = icon("ruler")
+        ),
+        
+        infoBox(
+          "Width", uiOutput("ship_width"), 
+          "meters", icon = icon("ruler")
+        ),
+        
+        infoBox(
+          "Deadweight", uiOutput("ship_weigth"), 
+          "tones", icon = icon("weight-hanging")
+        ),
+    )
 )
 
 server <- function(input, output, session) {
@@ -75,14 +97,38 @@ server <- function(input, output, session) {
       addTiles() %>% 
       addMarkers(lng = data_map()$LON,
                  lat = data_map()$LAT,
+                 icon = icons(
+                   iconUrl = c("img/times.png","img/ship.png"),
+                   iconWidth = 38, 
+                   iconHeight = 38
+                 ),
                  popup = c("Beggining", paste0("End: ", round(long_dist(), 2), " mts sailed")))
   })
   
+  # makeAwesomeIcon(icon = "ship", library = "fa",
+  #                 markerColor = "blue", 
+  #                 iconColor = "white")
+  # 
+  # makeAwesomeIcon(icon = "times", library = "fa",
+  #                 markerColor = "blue", 
+  #                 iconColor = "white")
   
   output$data_filtered <- renderDataTable(data_map())
   
   # observe(message(paste0("long_dist() = ", long_dist())))
   # observe(message(paste0("long_dist_row() = ", long_dist_row())))
+  
+  output$ship_length <- renderText({
+    prettyNum(data_map()$LENGTH[[1]], big.mark = ",")
+  })
+  
+  output$ship_width <- renderText({
+    prettyNum(data_map()$WIDTH[[1]], big.mark = ",")
+  })
+  
+  output$ship_weigth <- renderText({
+    prettyNum(data_map()$DWT[[1]], big.mark = ",")
+  })
   
 }
 

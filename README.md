@@ -6,8 +6,8 @@ This is a Shinyapp made using Marine Data.
 ## App description
 This app:
 
-- allows the user select a vessel type from a dropdown field
-- allows the user select a vessel from a dropdown field (available vessels correspond to the selected type)
+- allows the user select a vessel type from a dropdown field (they are in alphabetical order)
+- allows the user select a vessel from a dropdown field (available vessels correspond to the selected type). They are also in alphabetical order.
 - finds, for the vessel selected, the observation when it sailed the longest distance between two consecutive observations. If there is a situation when a vessel moves exactly the same amount of meters, it selects the most recent.
 - displays that on the map, showing two points: the beginning and the end of the movement. The points are colored based on whether the vessel was in movement or parked. Changing type and vessel name re-renders the map.
 - provide a short note saying how much the ship sailed, in meters.

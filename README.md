@@ -19,7 +19,10 @@ It also:
 - allows the user to see the timestamps of the observations in the map by hovering over the points.
 
 ## Details
-[`pre_proc.R`](pre_proc.R) is a file used to **pre proc**ess the data. In particular, 
-I read raw data using `fread` package and then, after some calculations, created some
-`.RDS` data files that are then loaded by the application. This allowed to upload files 
-with small sizes to shinyapps.io.
+[`pre_proc.R`](pre_proc.R) is a file used to **pre proc**ess the data. 
+
+In particular, I read raw data using `fread` package and then, after some calculations, created some
+`.RDS` data files that are then loaded by the application. This allowed to upload files with small sizes to shinyapps.io.
+
+One important thing to notice is that I created my own SHIP_ID variable, due to inconsistencies found with the provided one (different vessel names had the same SHIP_ID).
+

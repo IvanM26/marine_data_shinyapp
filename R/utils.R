@@ -1,14 +1,3 @@
-# Function to create ID - Description tibble
-make_dict <- function(data, id, desc){
-  id <- enquo(id)
-  desc <- enquo(desc)
-  
-  data %>% 
-    group_by(!!id, !!desc) %>% 
-    summarise() %>% 
-    arrange(!!desc)
-}
-
 # Function to compute distances between consecutive rows
 compute_distances <- function(data){
 
@@ -33,6 +22,3 @@ compute_distances <- function(data){
   distances <- distances %>% unlist
   
 }
-
-
-
